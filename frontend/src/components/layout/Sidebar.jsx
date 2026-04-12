@@ -1,7 +1,7 @@
 export default function Sidebar() {
   return (
-    <aside className="w-64 h-screen border-r p-6">
-      <h2 className="font-bold text-lg mb-6">Portfolio</h2>
+    <aside className="w-64 h-screen p-6 border-r">
+      <h2 className="mb-6 text-lg font-bold">Portfolio</h2>
 
       <nav className="flex flex-col gap-3">
         <a href="/">Overview</a>

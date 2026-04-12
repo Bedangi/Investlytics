@@ -16,4 +16,7 @@ app.get("/", (req, res) => {
   res.send("API Running");
 });
 
+const watchlistRoute = require("./routes/watchlist");
+app.use("/api/watchlist", watchlistRoute);
+
 app.listen(5000, () => console.log("Server running on port 5000"));

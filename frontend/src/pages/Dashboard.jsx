@@ -9,12 +9,12 @@ export default function Dashboard() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 flex flex-col">
+      <main className="flex flex-col flex-1">
         <Topbar />
-
+        
         <div className="p-8 space-y-10">
           <KPISection />
-          <div className="grid lg:grid-cols-12 gap-8">
+          <div className="grid gap-8 lg:grid-cols-12">
             <ChartSection />
             <AllocationSection />
           </div>
