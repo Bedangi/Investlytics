@@ -5,7 +5,10 @@ export default function WatchlistTable({ category, exchange }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const [holdings, setHoldings] = useState([]);
+  
+  const user = JSON.parse(localStorage.getItem("user"));
+  
   useEffect(() => {
     let url = `http://localhost:5000/api/watchlist?type=${category}&page=${page}`;
 
@@ -13,15 +16,55 @@ export default function WatchlistTable({ category, exchange }) {
       url += `&exchange=${exchange}`;
     }
 
-  fetch(url)
-    .then(res => res.json())
-    .then(res => {
-      setData(res.data);
-      setTotalPages(res.totalPages);
-    })
-    .catch(err => console.error("ERROR:", err));
-}, [category, exchange, page]);
+    fetch(url)
+      .then(res => res.json())
+      .then(res => {
+        setData(res.data);
+        setTotalPages(res.totalPages);
+      })
+      .catch(err => console.error("ERROR:", err));
+  }, [category, exchange, page]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    fetch(`http://localhost:5000/api/user/holdings?email=${user.email}`)
+      .then(res => res.json())
+      .then(data => setHoldings(data));
+  }, []);
+  
+  const addHolding = async (ticker) => {
+    const res = await fetch("http://localhost:5000/api/user/addHolding", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: user.email,
+        ticker
+      })
+    });
+
+    const updated = await res.json();
+    setHoldings(updated.holdings);
+  };
+
+  const removeHolding = async (ticker) => {
+    const res = await fetch("http://localhost:5000/api/user/removeHolding", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: user.email,
+        ticker
+      })
+    });
+
+    const updated = await res.json();
+    setHoldings(updated.holdings);
+  };
+  
   return (
     <div className="b-full order wp-6 rounded-xl">
 
@@ -35,11 +78,13 @@ export default function WatchlistTable({ category, exchange }) {
             <th className="px-4 py-3">Low</th>
             <th className="px-4 py-3">Return %</th>
             <th className="px-4 py-3">Volume</th>
+            <th className="px-4 py-3">Action</th>
           </tr>
         </thead>
 
         <tbody>
           {data.map((item, index) => {
+            const isAdded = holdings.includes(item.ticker);
             const returnVal = item.total_return || 0;
 
             return (
@@ -58,6 +103,24 @@ export default function WatchlistTable({ category, exchange }) {
 
                 <td className="px-4">
                   {item.volume?.toLocaleString() || "-"}
+                </td>
+                
+                <td className="px-4">
+                  {isAdded ? (
+                    <button disabled={!user} 
+                      onClick={() => removeHolding(item.ticker)}
+                      className="px-3 py-1 text-white bg-red-500 rounded"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button disabled={!user} 
+                      onClick={() => addHolding(item.ticker)}
+                      className="px-3 py-1 text-white bg-green-600 rounded"
+                    >
+                      Add
+                    </button>
+                  )}
                 </td>
               </tr>
             );

@@ -19,4 +19,10 @@ app.get("/", (req, res) => {
 const watchlistRoute = require("./routes/watchlist");
 app.use("/api/watchlist", watchlistRoute);
 
+const authRoute = require("./routes/auth");
+app.use("/api/auth", authRoute);
+
+const userRoute = require("./routes/user");
+app.use("/api/user", userRoute);
+
 app.listen(5000, () => console.log("Server running on port 5000"));

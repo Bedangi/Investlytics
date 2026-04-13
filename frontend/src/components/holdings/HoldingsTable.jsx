@@ -1,27 +1,62 @@
+import { useEffect, useState } from "react";
 export default function HoldingsTable() {
+  const [data, setData] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (!user) return;
+
+    fetch(`http://localhost:5000/api/user/holdings?email=${user.email}`)
+      .then(res => res.json())
+      .then(async (tickers) => {
+
+        const res = await fetch("http://localhost:5000/api/user/holdingsData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tickers })
+      });
+      
+      const data = await res.json();
+      console.log("HOLDINGS DATA:", data);
+      setData(Array.isArray(data) ? data : data.data || []);
+      });
+
+  }, []);
   return (
-    <div className="border rounded-xl overflow-hidden">
-      <table className="w-full">
+    <div className="b-full order wp-6 rounded-xl">
+      <table className="w-full text-left border-collapse">
         <thead className="bg-gray-100">
-          <tr>
-            <th>Name</th>
-            <th>Qty</th>
-            <th>Avg Price</th>
-            <th>Market Price</th>
-            <th>Value</th>
-            <th>P&L</th>
+          <tr className="text-sm font-bold borderlack-b text-b-500">
+            <th className="px-4 py-3">Ticker</th>
+            <th className="px-4 py-3">Start</th>
+            <th className="px-4 py-3">End</th>
+            <th className="px-4 py-3">High</th>
+            <th className="px-4 py-3">Low</th>
+            <th className="px-4 py-3">Return %</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr>
-            <td>AAPL</td>
-            <td>450</td>
-            <td>$142</td>
-            <td>$189</td>
-            <td>$85,243</td>
-            <td className="text-green-500">+33%</td>
-          </tr>
+          {data.map((item, i) => {
+            const returnVal = item.total_return || 0;
+          return (
+            <tr key={i}>
+              <td className="px-4 py-3 font-semibold">{item.ticker}</td>
+              <td className="px-4">${item.starting_price?.toFixed(2)}</td>
+              <td className="px-4">${item.ending_price?.toFixed(2)}</td>
+              <td className="px-4">${item.highest_price?.toFixed(2)}</td>
+              <td className="px-4">${item.lowest_price?.toFixed(2)}</td>
+
+              <td className={`px-4 font-semibold ${
+                returnVal >= 0 ? "text-green-600" : "text-red-500"
+              }`}>
+                {returnVal.toFixed(2)}%
+              </td>
+            </tr>
+          );
+        })}
         </tbody>
       </table>
     </div>
