@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-export default function HoldingsTable() {
+export default function HoldingsTable({ type }) {
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
@@ -15,15 +18,16 @@ export default function HoldingsTable() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ tickers })
+        body: JSON.stringify({ tickers, page, type: type === "all" ? null : type })
       });
       
       const data = await res.json();
-      console.log("HOLDINGS DATA:", data);
       setData(Array.isArray(data) ? data : data.data || []);
+      setTotalPages(data.totalPages || 1);
       });
 
-  }, []);
+  }, [page, type]);
+  
   return (
     <div className="b-full order wp-6 rounded-xl">
       <table className="w-full text-left border-collapse">
@@ -59,6 +63,24 @@ export default function HoldingsTable() {
         })}
         </tbody>
       </table>
+      
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+          className="px-3 py-1 border"
+        >
+          Prev
+        </button>
+
+        <span>Page {page} of {totalPages}</span>
+
+        <button
+          onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+          className="px-3 py-1 border"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

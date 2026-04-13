@@ -52,19 +52,34 @@ router.get("/holdings", async (req, res) => {
 
 router.post("/holdingsData", async (req, res) => {
   try {
-    const { tickers } = req.body;
+    const {
+      tickers,
+      type,
+      page = 1,
+      limit = 10
+    } = req.body;
 
-    const data = await Stats.aggregate([
+    const skip = (page - 1) * limit;
 
-      {
-        $unwind: "$stats"
-      },
+    const basePipeline = [
+      ...(type ? [{
+        $match: {
+          Asset_Type: { $regex: `^${type}$`, $options: "i" }
+        }
+      }] : []),
+
+      { $unwind: "$stats" },
 
       {
         $match: {
           "stats.ticker": { $in: tickers }
         }
       },
+
+    ];
+
+    const data = await Stats.aggregate([
+      ...basePipeline,
 
       {
         $project: {
@@ -77,11 +92,26 @@ router.post("/holdingsData", async (req, res) => {
           total_return: "$stats.income_stats.total_return_%",
           volume: "$stats.income_stats.avg_daily_volume"
         }
-      }
+      },
+
+      { $sort: { total_return: -1 } },
+      { $skip: skip },
+      { $limit: limit }
 
     ]);
 
-    res.json(data);
+    const count = await Stats.aggregate([
+      ...basePipeline,
+      { $count: "count" }
+    ]);
+
+    const total = count[0]?.count || 0;
+
+    res.json({
+      data,
+      total,
+      totalPages: Math.ceil(total / limit)
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
