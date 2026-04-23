@@ -118,4 +118,26 @@ router.post("/holdingsData", async (req, res) => {
   }
 });
 
+router.post("/trade", async (req, res) => {
+  try {
+    const { email, ticker, quantity, type } = req.body;
+
+    const update =
+      type === "buy"
+        ? { $inc: { [`portfolio.${ticker}`]: Number(quantity) } }
+        : { $inc: { [`portfolio.${ticker}`]: -Number(quantity) } };
+
+    const user = await User.findOneAndUpdate(
+      { email },
+      update,
+      { returnDocument: "after" }
+    );
+
+    res.json(user);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function WatchlistHeader({ onCategoryChange, onExchangeChange }) {
+export default function WatchlistHeader({ onCategoryChange, onExchangeChange, onSearchChange  }) {
   const [activeCategory, setActiveCategory] = useState("Stock");
   const [activeExchange, setActiveExchange] = useState("NASDAQ");
    
@@ -33,10 +33,10 @@ export default function WatchlistHeader({ onCategoryChange, onExchangeChange }) 
           </p>
         </div>
 
-        {/* <input
-          placeholder="Search..."
-          className="w-64 p-2 border rounded"
-        /> */}
+        <input
+          placeholder="Search ticker..."
+          className="w-64 p-2 border rounded" onChange={(e) => onSearchChange(e.target.value)}
+        />
       </div>
 
       <div className="flex gap-4">

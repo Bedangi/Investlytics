@@ -13,6 +13,7 @@ export default function Watchlist() {
 };
 const [category, setCategory] = useState("Stock");
 const [exchange, setExchange] = useState("NASDAQ");
+const [search, setSearch] = useState("");
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -21,10 +22,10 @@ const [exchange, setExchange] = useState("NASDAQ");
         <Topbar />
 
         <main className="w-full p-8 mx-auto space-y-8 max-w-7xl">
-          <WatchlistHeader onCategoryChange={setCategory} onExchangeChange={setExchange}/>
+          <WatchlistHeader onCategoryChange={setCategory} onExchangeChange={setExchange} onSearchChange={setSearch}/>
 
           <div className="grid gap-6 ">
-            <WatchlistTable category={mapCategory[category]} exchange={exchange}/>
+            <WatchlistTable category={mapCategory[category]} exchange={exchange} search={search}/>
           </div>
 
         </main>

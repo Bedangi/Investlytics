@@ -26,7 +26,7 @@ export default function Sidebar() {
         <a href="/watchlist">WatchList</a>
       </nav>
       
-      <div>
+      <div className="pt-20">
         {!user ? (
           <div className="space-y-2">
             <button

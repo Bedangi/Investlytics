@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function WatchlistTable({ category, exchange }) {
+export default function WatchlistTable({ category, exchange ,search }) {
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -10,20 +10,31 @@ export default function WatchlistTable({ category, exchange }) {
   const user = JSON.parse(localStorage.getItem("user"));
   
   useEffect(() => {
-    let url = `http://localhost:5000/api/watchlist?type=${category}&page=${page}`;
+    let url;
+    if(search){
+      url = `http://localhost:5000/api/watchlist/search?ticker=${search}`;
+    } else{
+      url = `http://localhost:5000/api/watchlist?type=${category}&page=${page}`;
 
-    if (exchange) {
-      url += `&exchange=${exchange}`;
+      if (exchange) {
+        url += `&exchange=${exchange}`;
+      }
     }
 
     fetch(url)
       .then(res => res.json())
       .then(res => {
-        setData(res.data);
+        const finalData = Array.isArray(res)
+          ? res
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
+
+        setData(finalData);
         setTotalPages(res.totalPages);
       })
       .catch(err => console.error("ERROR:", err));
-  }, [category, exchange, page]);
+  }, [category, exchange, page, search]);
 
   useEffect(() => {
     if (!user) return;
@@ -83,7 +94,7 @@ export default function WatchlistTable({ category, exchange }) {
         </thead>
 
         <tbody>
-          {data.map((item, index) => {
+          {Array.isArray(data) && data.map((item, index) => {
             const isAdded = holdings.includes(item.ticker);
             const returnVal = item.total_return || 0;
 

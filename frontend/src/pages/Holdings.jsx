@@ -8,6 +8,7 @@ import { useState } from "react";
 
 export default function Holdings() {
   const [type, setType] = useState("all");
+  const [data, setData] = useState([]);
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -15,9 +16,9 @@ export default function Holdings() {
         <Topbar />
 
         <main className="p-10 space-y-10">
-          <HoldingsHeader onFilterChange={setType} />
-          <HoldingsSummary />
-          <HoldingsTable type={type} />
+          <HoldingsHeader active={type} onFilterChange={setType} />
+          <HoldingsSummary data={data}/>
+          <HoldingsTable type={type} setParentData={setData}/>
         </main>
       </div>
     </div>

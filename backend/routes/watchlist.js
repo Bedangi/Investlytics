@@ -69,4 +69,47 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/search", async (req, res) => {
+  try {
+    const { ticker } = req.query;
+    if (!ticker) {
+      return res.status(400).json({ error: "Ticker required" });
+    }
+    const data = await Stats.aggregate([
+      
+
+      {
+        $match: {
+          "stats.ticker": {
+            $regex: `^${ticker}`,
+            $options: "i"
+          }
+        }
+      },
+      { $unwind: "$stats" },
+
+      {
+        $project: {
+          _id: 0,
+          ticker: "$stats.ticker",
+          starting_price: "$stats.income_stats.starting_price",
+          ending_price: "$stats.income_stats.ending_price",
+          highest_price: "$stats.income_stats.highest_price",
+          lowest_price: "$stats.income_stats.lowest_price",
+          total_return: "$stats.income_stats.total_return_%",
+          volume: "$stats.income_stats.avg_daily_volume"
+        }
+      },
+
+      { $limit: 20 } 
+    ]);
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 module.exports = router;

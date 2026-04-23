@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-export default function HoldingsTable({ type }) {
+
+
+export default function HoldingsTable({ type, setParentData }) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
   const user = JSON.parse(localStorage.getItem("user"));
-
+  
   useEffect(() => {
     if (!user) return;
 
@@ -23,6 +25,7 @@ export default function HoldingsTable({ type }) {
       
       const data = await res.json();
       setData(Array.isArray(data) ? data : data.data || []);
+      setParentData(Array.isArray(data) ? data : data.data || []);
       setTotalPages(data.totalPages || 1);
       });
 
@@ -46,7 +49,7 @@ export default function HoldingsTable({ type }) {
           {data.map((item, i) => {
             const returnVal = item.total_return || 0;
           return (
-            <tr key={i}>
+            <tr key={i} >
               <td className="px-4 py-3 font-semibold">{item.ticker}</td>
               <td className="px-4">${item.starting_price?.toFixed(2)}</td>
               <td className="px-4">${item.ending_price?.toFixed(2)}</td>

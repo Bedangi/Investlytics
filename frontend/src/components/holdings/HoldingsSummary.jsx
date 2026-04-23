@@ -1,19 +1,30 @@
-export default function HoldingsSummary() {
+export default function HoldingsSummary({ data }) {
+  const totalAssets = data.length;
+  const totalReturn = data.reduce(
+    (sum, item) => sum + (item.total_return || 0),
+    0
+  );
+  const isBullish = totalReturn >= 0;
+
   return (
-    <div className="grid md:grid-cols-4 gap-6">
+    <div className="grid gap-6 md:grid-cols-4">
       <div className="p-6 border">
-        <p>Total Value</p>
-        <h2>$1,428,940</h2>
+        <p>Total Assets</p>
+        <h2>{totalAssets}</h2>
       </div>
 
       <div className="p-6 border">
-        <p>Realized P&L</p>
-        <h2>$84,200</h2>
+        <p>Total Return </p>
+        <h2 className={` ${
+          isBullish ? "text-green-600" : "text-red-500"
+        }`}>{totalReturn.toFixed(2)}%</h2>
       </div>
 
       <div className="p-6 border md:col-span-2">
         <p>Market Outlook</p>
-        <h2>Bullish</h2>
+        <h2 className={`${
+          isBullish ? "text-green-600" : "text-red-500"
+        }`}>{isBullish ? "Bullish" : "Bearish"}</h2>
       </div>
     </div>
   );
