@@ -28,4 +28,7 @@ app.use("/api/user", userRoute);
 const analyticsRoute = require("./routes/analytics");
 app.use("/api/analytics", analyticsRoute);
 
+const overviewRoute = require("./routes/overview");
+app.use("/api/overview", overviewRoute);
+
 app.listen(5000, () => console.log("Server running on port 5000"));
